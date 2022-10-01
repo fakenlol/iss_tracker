@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
-import * as TLE from "tle.js";
+const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 const Scene = () => {
@@ -50,6 +50,10 @@ const Scene = () => {
     scene.add( earth );
 
     //ISS
+    const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+    const iss = new THREE.Mesh( issGeometry, issMaterial );
+    
     fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
     .then(response => {
         
@@ -60,11 +64,7 @@ const Scene = () => {
         return response;
     })
     .then(tle => {
-        const latLon = TLE.getLatLngObj(tle);
-
-        const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-        const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-        const iss = new THREE.Mesh( issGeometry, issMaterial );
+        const latLon = getLatLngObj(tle);
         iss.position.x = earth_radius * Math.cos(latLon.lat) * Math.cos(latLon.lng)
         iss.position.y = earth_radius * Math.cos(latLon.lat) * Math.sin(latLon.lng)
         iss.z = earth_radius * Math.sin(latLon.lat)
