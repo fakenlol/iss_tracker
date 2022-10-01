@@ -31,9 +31,9 @@ const Scene = () => {
     
     const textureLoader = new THREE.TextureLoader()
     textureLoader.crossOrigin = ""
-    const texture = textureLoader.load('imgs/2k_earth_daymap.png')
-    const specular = textureLoader.load('imgs/2k_earth_specular_map.png')
-    const normalMap = textureLoader.load('imgs/2k_earth_normal_map.png')
+    const texture = textureLoader.load('imgs/8k_earth_daymap.jpg')
+    const specular = textureLoader.load('imgs/8k_earth_specular_map.tif')
+    const normalMap = textureLoader.load('imgs/8k_earth_normal_map.tif')
     console.log(normalMap);
     const material = new THREE.MeshPhongMaterial({
         map: texture,
