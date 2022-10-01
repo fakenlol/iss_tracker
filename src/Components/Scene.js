@@ -1,7 +1,8 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
-const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+
+const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
 
 const Scene = () => {
   const mountRef = useRef(null)
@@ -53,7 +54,7 @@ const Scene = () => {
     const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
     const iss = new THREE.Mesh( issGeometry, issMaterial );
-    
+
     fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
     .then(response => {
         
