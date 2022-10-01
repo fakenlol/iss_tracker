@@ -27,6 +27,8 @@ const Scene = () => {
     currentMount.appendChild(renderer.domElement)
 
     //Textures
+    // https://www.solarsystemscope.com/textures/
+    
     const textureLoader = new THREE.TextureLoader()
     textureLoader.crossOrigin = ""
     const texture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg')
