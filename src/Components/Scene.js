@@ -31,9 +31,9 @@ const Scene = () => {
     
     const textureLoader = new THREE.TextureLoader()
     textureLoader.crossOrigin = ""
-    const texture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg')
-    const specular = textureLoader.load('src/imgs/2k_earth_specular_map.png')
-    const normalMap = textureLoader.load('src/imgs/2k_earth_normal_map.png')
+    const texture = textureLoader.load('imgs/2k_earth_daymap.png')
+    const specular = textureLoader.load('imgs/2k_earth_specular_map.png')
+    const normalMap = textureLoader.load('imgs/2k_earth_normal_map.png')
     console.log(normalMap);
     const material = new THREE.MeshPhongMaterial({
         map: texture,
