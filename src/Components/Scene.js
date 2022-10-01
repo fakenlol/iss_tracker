@@ -1,8 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-
-const { getLatLngObj } = require("tle.js/dist/tlejs.cjs");
+import * as TLE from "tle.js";
 
 const Scene = () => {
   const mountRef = useRef(null)
@@ -62,14 +61,25 @@ const Scene = () => {
             throw new Error(`Request failed`);
         }
 
-        return response;
+        return response.text();
     })
     .then(tle => {
-        const latLon = getLatLngObj(tle);
-        iss.position.x = earth_radius * Math.cos(latLon.lat) * Math.cos(latLon.lng)
-        iss.position.y = earth_radius * Math.cos(latLon.lat) * Math.sin(latLon.lng)
-        iss.z = earth_radius * Math.sin(latLon.lat)
+        const latLon = TLE.getLatLngObj(tle.trim());
+        console.log(latLon)
+        var R = earth_radius + 3;
+        iss.position.x = R * Math.cos(latLon.lat) * Math.cos(latLon.lng)
+        iss.position.y = R * Math.cos(latLon.lat) * Math.sin(latLon.lng)
+        iss.position.z = R * Math.sin(latLon.lat)
         scene.add( iss );
+
+    //Renderizar la escena
+    const animate = () => {
+        requestAnimationFrame(animate)
+        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
+        controls.update()
+        renderer.render(scene, camera)
+    }
+    animate()
     })
 
     //Controles
@@ -80,14 +90,6 @@ const Scene = () => {
     const AO = new THREE.AmbientLight(0xffffff,1)
     scene.add(AO)
 
-    //Renderizar la escena
-    const animate = () => {
-        requestAnimationFrame(animate)
-        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
-        controls.update()
-        renderer.render(scene, camera)
-    }
-    animate()
 
     //Clean up scene
     return () =>{
