@@ -26,29 +26,46 @@ const Scene = () => {
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight)
     currentMount.appendChild(renderer.domElement)
 
+    //Textures
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.crossOrigin = ""
+    const texture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_earth_daymap.jpg')
+    const specular = textureLoader.load('src/imgs/2k_earth_specular_map.png')
+    const normalMap = textureLoader.load('src/imgs/2k_earth_normal_map.png')
+    console.log(normalMap);
+    const material = new THREE.MeshPhongMaterial({
+        map: texture,
+        normalMap: normalMap,
+        specularMap: specular,
+    })
     //Earth
-    const earthGeometry = new THREE.SphereGeometry( 15, 32, 32 );
-    const earthMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00} );
-    const earth = new THREE.Mesh( earthGeometry, earthMaterial );
+    const earth = new THREE.Mesh(
+        new THREE.SphereGeometry( 15, 50, 50),
+        material
+    )
     scene.add( earth );
 
     //ISS
     const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const issMaterial = new THREE.MeshPhongMaterial( {color: 0xff0000} );
+    const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
     const iss = new THREE.Mesh( issGeometry, issMaterial );
     iss.position.z = 20
     scene.add( iss );
 
     //Controles
     const controls = new OrbitControls(camera, renderer.domElement)
-    controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
     controls.enableDamping = true
+    
+    //Lights
+    const AO = new THREE.AmbientLight(0xffffff,1)
+    scene.add(AO)
 
     //Renderizar la escena
     const animate = () => {
+        requestAnimationFrame(animate)
+        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
         controls.update()
         renderer.render(scene, camera)
-        requestAnimationFrame(animate)
     }
     animate()
 
