@@ -19,7 +19,7 @@ const Scene = () => {
       0.1,
       1000
     )
-    camera.position.z = 250
+    camera.position.z = 80
     scene.add(camera)
 
     //Renderizador
@@ -48,25 +48,7 @@ const Scene = () => {
         material
     )
     scene.add( earth );
-    
-    //alineadorx
-    const geometriax = new THREE.BoxGeometry(1,1,1);
-    const material2x = new THREE.MeshPhongMaterial({color: 0xff0000});
-    const alineadorx = new THREE.Mesh(geometriax, material2x);
-    
-    alineadorx.position.x = 100
-    
-    scene.add(alineadorx);
-    
-    //alineadorz
-    const geometriaz = new THREE.BoxGeometry(1,1,1);
-    const material2z = new THREE.MeshPhongMaterial({color: 0xff0000});
-    const alineadorz = new THREE.Mesh(geometriaz, material2z);
-    
-    alineadorz.position.z = 100
-    
-    scene.add(alineadorz);
-    
+
     //ISS
     const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
@@ -84,16 +66,10 @@ const Scene = () => {
     .then(tle => {
         const latLon = TLE.getLatLngObj(tle.trim());
         console.log(latLon)
-        
         var R = earth_radius + 3.3;
-        
-        const pi = Math.PI
-        var lat = latLon.lat * (pi/180)
-        var lon = latLon.lng * (pi/180)
-        
-        iss.position.x = R * Math.cos(lat) * Math.cos(lon)
-        iss.position.y = R * Math.sin(lat)
-        iss.position.z = R * Math.cos(lat) * Math.sin(lon)
+        iss.position.x = R * Math.cos(latLon.lat) * Math.cos(latLon.lng) *
+        iss.position.y = R * Math.cos(latLon.lat) * Math.sin(latLon.lng)
+        iss.position.z = R * Math.sin(latLon.lat)
         scene.add( iss );
 
     //Renderizar la escena
