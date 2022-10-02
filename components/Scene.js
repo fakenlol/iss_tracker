@@ -4,6 +4,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import LockCamera from './LockCamera.jsx';
+import Header from './Header.jsx';
 
 const Scene = ({ tle }) => {
   const mountRef = useRef(null)
@@ -165,8 +166,10 @@ const Scene = ({ tle }) => {
   }, []);
 
   return (
-    <>
-        <LockCamera changeCamera={changeCamera}/>
+    < >
+        <Header>
+          <LockCamera changeCamera={changeCamera} />
+        </Header>
         <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100vh" }}>
         </div>
     </>
