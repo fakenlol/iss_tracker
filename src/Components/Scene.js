@@ -72,49 +72,47 @@ const Scene = () => {
     const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
     const iss = new THREE.Mesh( issGeometry, issMaterial );
 
-    fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
-    .then(response => {
-        
-        if (!response.ok) {
-            throw new Error(`Request failed`);
-        }
+    function updatePos(){
+        fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
+        .then(response => {
+            
+            if (!response.ok) {
+                throw new Error(`Request failed`);
+            }
 
-        return response.text();
-    })
-    .then(tle => {
-        const latLon = TLE.getLatLngObj(tle.trim());
-        console.log(latLon)
-        
-        var R = earth_radius + 3.3;
-        
-        const pi = Math.PI
-        var lat = latLon.lat * (pi/180)
-        var lon = latLon.lng * (pi/180)
-        
-        iss.position.x = R * Math.cos(lat) * Math.cos(lon)
-        iss.position.y = R * Math.sin(lat)
-        iss.position.z = R * Math.cos(lat) * Math.sin(lon)
-        scene.add( iss );
-
-    //Renderizar la escena
-    const animate = () => {
-        requestAnimationFrame(animate)
-        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
-        controls.update()
-        renderer.render(scene, camera)
+            return response.text();
+        })
+        .then(tle => {
+            const latLon = TLE.getLatLngObj(tle.trim());
+            var R = earth_radius + 3.3;
+            const pi = Math.PI
+            var lat = latLon.lat * (pi/180)
+            var lon = latLon.lng * (pi/180)
+            
+            iss.position.x = R * Math.cos(lat) * Math.cos(lon)
+            iss.position.y = R * Math.sin(lat)
+            iss.position.z = R * Math.cos(lat) * Math.sin(lon)
+            scene.add( iss );
+        })
     }
-    animate()
-    })
 
     //Controles
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true
+    //Renderizar la escena
     
     //Lights
     const AO = new THREE.AmbientLight(0xffffff,1)
     scene.add(AO)
 
-
+    const animate = () => {
+        requestAnimationFrame(animate)
+        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
+        controls.update()
+        updatePos()
+        renderer.render(scene, camera)
+    }
+    animate()
     //Clean up scene
     return () =>{
         currentMount.removeChild(renderer.domElement)
