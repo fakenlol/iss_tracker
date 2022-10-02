@@ -1,10 +1,11 @@
 import './App.css';
 import Scene from './Components/Scene';
 
+
 function App() {
   return (
     <div className="App">
-        <Scene/>
+      <Scene/>
     </div>
   );
 }
