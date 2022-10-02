@@ -53,7 +53,7 @@ const Scene = () => {
     //Clouds
     const cloudsTexture = textureLoader.load('imgs/8k_earth_clouds.jpg')
     
-    const cloudsGeometry = new THREE.SphereGeometry(66.78, 50, 50)
+    const cloudsGeometry = new THREE.SphereGeometry(63.81, 50, 50)
     const cloudsMaterial = new THREE.MeshPhongMaterial({
         map: cloudsTexture,
         transparent: true,
@@ -62,51 +62,60 @@ const Scene = () => {
     const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial)
     scene.add(clouds)
     
-    //alineadorx
-    const geometriax = new THREE.BoxGeometry(1,1,1);
-    const material2x = new THREE.MeshPhongMaterial({color: 0xff0000});
+    /*
+    // alineador_malvinas
+    const geometriax = new THREE.BoxGeometry(0.1,0.1,0.1);
+    const material2x = new THREE.MeshPhongMaterial({color: 0xffff00});
     const alineadorx = new THREE.Mesh(geometriax, material2x);
-    
-    alineadorx.position.x = 100
-    
+
+      var auxlat = -51.69245 * (Math.PI / 180), auxlong = 28.65645 * (Math.PI / 180);
+    alineadorx.position.x = (earth_radius) * Math.cos(auxlat) * Math.sin(auxlong)
+    alineadorx.position.y = (earth_radius) * Math.sin(auxlat)
+    alineadorx.position.z = (earth_radius) * Math.cos(auxlat) * Math.cos(auxlong)
+
     scene.add(alineadorx);
-    
-    //alineadorz
-    const geometriaz = new THREE.BoxGeometry(1,1,1);
-    const material2z = new THREE.MeshPhongMaterial({color: 0xff0000});
-    const alineadorz = new THREE.Mesh(geometriaz, material2z);
-    
-    alineadorz.position.z = 100
-    
-    scene.add(alineadorz);
+    */
     
     //ISS
     const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
     const iss = new THREE.Mesh( issGeometry, issMaterial );
+    var tle = `ISS (ZARYA)
+    1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
+    2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
 
+    var lastTimestamp = -1;
     function updatePos(){
-        fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
-        .then(response => {
-            
-            if (!response.ok) {
-                throw new Error(`Request failed`);
-            }
+        if (Date.now() - lastTimestamp > 240000) { // refresh rate 4h for TLE
+            lastTimestamp = Date.now();
 
-            return response.text();
-        })
-        .then(tle => {
-            const latLon = TLE.getLatLngObj(tle.trim());
-            var R = earth_radius + 3.3;
-            const pi = Math.PI
-            var lat = latLon.lat * (pi/180)
-            var lon = latLon.lng * (pi/180)
-            
-            iss.position.x = R * Math.cos(lat) * Math.sin(lon)
-            iss.position.y = R * Math.sin(lat)
-            iss.position.z = R * Math.cos(lat) * Math.cos(lon)
-            scene.add( iss );
-        })
+            fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
+            .then(response => {
+                
+                if (!response.ok) {
+                    throw new Error(`Request failed`);
+                }
+
+                return response.text();
+            })
+            .then(resultTle => {
+                tle = resultTle;
+            })
+        }
+
+        var latLon = TLE.getLatLngObj(tle.trim());
+        latLon.lng += 80; // 80° offset
+        if (latLon.lng > 180) latLon.lng -= 360
+
+        var R = earth_radius + 3.3;
+        const pi = Math.PI
+        var lat = latLon.lat * (pi/180)
+        var lon = latLon.lng * (pi/180)
+        
+        iss.position.x = R * Math.cos(lat) * Math.sin(lon)
+        iss.position.y = R * Math.sin(lat)
+        iss.position.z = R * Math.cos(lat) * Math.cos(lon)
+        scene.add( iss );
     }
 
     //Controles
