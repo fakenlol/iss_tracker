@@ -68,10 +68,10 @@ const Scene = () => {
     const material2x = new THREE.MeshPhongMaterial({color: 0xffff00});
     const alineadorx = new THREE.Mesh(geometriax, material2x);
 
-      var auxlat = -51.69245 * (Math.PI / 180), auxlong = 28.65645 * (Math.PI / 180);
-    alineadorx.position.x = (earth_radius) * Math.cos(auxlat) * Math.sin(auxlong)
-    alineadorx.position.y = (earth_radius) * Math.sin(auxlat)
-    alineadorx.position.z = (earth_radius) * Math.cos(auxlat) * Math.cos(auxlong)
+      var auxlat = (90- (-51.69245)) * (Math.PI / 180), auxlong = (-58.65645+180) * (Math.PI / 180);
+    alineadorx.position.x = -((earth_radius) * Math.sin(auxlat) * Math.cos(auxlong));
+    alineadorx.position.y = (earth_radius) * Math.cos(auxlat)
+    alineadorx.position.z = (earth_radius) * Math.sin(auxlat) * Math.sin(auxlong)
 
     scene.add(alineadorx);
     */
@@ -111,10 +111,10 @@ const Scene = () => {
     1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
 
-    var lastTimestamp = -1;
+    var lastTimestampTLE = -1;
     function updatePos(){
-        if (Date.now() - lastTimestamp > 240000) { // refresh rate 4h for TLE
-            lastTimestamp = Date.now();
+        if (Date.now() - lastTimestampTLE > 240000) { // refresh rate 4h for TLE
+            lastTimestampTLE = Date.now();
 
             fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
             .then(response => {
@@ -131,18 +131,18 @@ const Scene = () => {
         }
 
         var latLon = TLE.getLatLngObj(tle.trim());
-        latLon.lng += 80; // 80° offset
-        if (latLon.lng > 180) latLon.lng -= 360
 
         // https://www.space.com/16748-international-space-station.html (average altitude of 400km)
         var R = earth_radius + 4;
+
+        // https://stackoverflow.com/questions/28365948/javascript-latitude-longitude-to-xyz-position-on-earth-threejs/28367325#28367325
         const pi = Math.PI
-        var lat = latLon.lat * (pi/180)
-        var lon = latLon.lng * (pi/180)
+        var lat = (90-latLon.lat) * (pi/180)
+        var lon = (latLon.lng+180) * (pi/180)
         
-        var x = R * Math.cos(lat) * Math.sin(lon)
-        var y = R * Math.sin(lat)
-        var z = R * Math.cos(lat) * Math.cos(lon)
+        var x = -(R * Math.sin(lat) * Math.cos(lon));
+        var y = (R * Math.cos(lat))
+        var z = (R * Math.sin(lat) * Math.sin(lon))
         iss.position.set(x, y, z)
         scene.add( iss );
     }
