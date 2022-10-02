@@ -32,6 +32,7 @@ const Scene = () => {
     
     const textureLoader = new THREE.TextureLoader()
     textureLoader.crossOrigin = ""
+    
     const texture = textureLoader.load('imgs/8k_earth_daymap.jpg')
     const specular = textureLoader.load('imgs/8k_earth_specular_map.tif')
     const normalMap = textureLoader.load('imgs/8k_earth_normal_map.tif')
@@ -48,6 +49,18 @@ const Scene = () => {
         material
     )
     scene.add( earth );
+    
+    //Clouds
+    const cloudsTexture = textureLoader.load('imgs/8k_earth_clouds.jpg')
+    
+    const cloudsGeometry = new THREE.SphereGeometry(66.78, 50, 50)
+    const cloudsMaterial = new THREE.MeshPhongMaterial({
+        map: cloudsTexture,
+        transparent: true,
+        opacity: 0.6
+    })
+    const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial)
+    scene.add(clouds)
     
     //alineadorx
     const geometriax = new THREE.BoxGeometry(1,1,1);
