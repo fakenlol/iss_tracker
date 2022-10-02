@@ -2,6 +2,7 @@ import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 const Scene = () => {
   const mountRef = useRef(null)
@@ -77,9 +78,34 @@ const Scene = () => {
     */
     
     //ISS
-    const issGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const issMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
-    const iss = new THREE.Mesh( issGeometry, issMaterial );
+    var iss;
+    // Instantiate a loader
+    const loaderISS = new GLTFLoader();
+    // Load a glTF resource
+    loaderISS.load(
+	    // resource URL
+	    'models/ISS_stationary.glb',
+	    // called when the resource is loaded
+	    function ( glb) {
+        iss = glb.scene
+        iss.scale.set(0.1,0.1,0.1)
+        iss.position.set(0,0,0)
+        scene.add(iss);
+	    },
+	    // called while loading is progressing
+	    function ( xhr ) {
+
+		    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	    },
+	    // called when loading has error
+	    function ( error ) {
+
+		    console.log( 'An error happened' );
+
+	    }
+    );
+    
     var tle = `ISS (ZARYA)
     1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
@@ -112,9 +138,10 @@ const Scene = () => {
         var lat = latLon.lat * (pi/180)
         var lon = latLon.lng * (pi/180)
         
-        iss.position.x = R * Math.cos(lat) * Math.sin(lon)
-        iss.position.y = R * Math.sin(lat)
-        iss.position.z = R * Math.cos(lat) * Math.cos(lon)
+        var x = R * Math.cos(lat) * Math.sin(lon)
+        var y = R * Math.sin(lat)
+        var z = R * Math.cos(lat) * Math.cos(lon)
+        iss.position.set(x, y, z)
         scene.add( iss );
     }
 
@@ -129,7 +156,7 @@ const Scene = () => {
 
     const animate = () => {
         requestAnimationFrame(animate)
-        controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
+        //controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
         controls.update()
         updatePos()
         renderer.render(scene, camera)
