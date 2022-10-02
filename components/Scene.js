@@ -3,6 +3,7 @@ import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import ViewMode from "./ViewStyle/ViewMode.jsx"
 
 const Scene = ({ tle }) => {
   const mountRef = useRef(null)
@@ -12,16 +13,16 @@ const Scene = ({ tle }) => {
 
     //Scena
     const scene = new THREE.Scene()
-
-    //Camara
+    
+        //Camara
     const camera = new THREE.PerspectiveCamera(
-      25,
+      5,
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
     )
     scene.add(camera)
-
+    
     //Renderizador
     const renderer = new THREE.WebGLRenderer()
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight)
@@ -112,7 +113,8 @@ const Scene = ({ tle }) => {
     1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
     */
-    
+    var x, y , z
+    var cameraLock = true
     function updatePos(){
         var latLon = TLE.getLatLngObj(tle.trim());
 
@@ -124,10 +126,13 @@ const Scene = ({ tle }) => {
         var lat = (90-latLon.lat) * (pi/180)
         var lon = (latLon.lng+180) * (pi/180)
         
-        var x = -(R * Math.sin(lat) * Math.cos(lon));
-        var y = (R * Math.cos(lat))
-        var z = (R * Math.sin(lat) * Math.sin(lon))
+        x = -(R * Math.sin(lat) * Math.cos(lon))
+        y = R * Math.cos(lat)
+        z = R * Math.sin(lat) * Math.sin(lon)
+        
         iss.position.set(x, y, z)
+        if (cameraLock)
+            camera.position.set(x*2, y*2, z*2)
         scene.add( iss );
     }
 
@@ -142,9 +147,9 @@ const Scene = ({ tle }) => {
 
     const animate = () => {
         requestAnimationFrame(animate)
+        updatePos()
         controls.target = iss.position
         controls.update()
-        updatePos()
         renderer.render(scene, camera)
     }
     animate()
@@ -155,8 +160,11 @@ const Scene = ({ tle }) => {
   }, []);
 
   return (
-    <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100vh" }}>
-    </div>
+    <>
+        <ViewMode/>
+        <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100vh" }}>
+        </div>
+    </>
   );
 };
 
