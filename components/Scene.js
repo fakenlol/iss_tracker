@@ -4,7 +4,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-const Scene = () => {
+const Scene = ({ tle }) => {
   const mountRef = useRef(null)
 
   useEffect(() => {
@@ -95,8 +95,8 @@ const Scene = () => {
 	    },
 	    // called while loading is progressing
 	    function ( xhr ) {
-
-		    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+            // This wasn't working anyways...
+		    // console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 
 	    },
 	    // called when loading has error
@@ -107,29 +107,13 @@ const Scene = () => {
 	    }
     );
     
+    /*
     var tle = `ISS (ZARYA)
     1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
-
-    var lastTimestampTLE = -1;
+    */
+    
     function updatePos(){
-        if (Date.now() - lastTimestampTLE > 240000) { // refresh rate 4h for TLE
-            lastTimestampTLE = Date.now();
-
-            fetch("http://celestrak.org/NORAD/elements/gp.php?CATNR=25544")
-            .then(response => {
-                
-                if (!response.ok) {
-                    throw new Error(`Request failed`);
-                }
-
-                return response.text();
-            })
-            .then(resultTle => {
-                tle = resultTle;
-            })
-        }
-
         var latLon = TLE.getLatLngObj(tle.trim());
 
         // https://www.space.com/16748-international-space-station.html (average altitude of 400km)
