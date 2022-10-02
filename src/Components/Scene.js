@@ -20,7 +20,6 @@ const Scene = () => {
       0.1,
       1000
     )
-    camera.position.z = 250
     scene.add(camera)
 
     //Renderizador
@@ -44,7 +43,7 @@ const Scene = () => {
         specularMap: specular,
     })
     //Earth
-    const earth_radius = 63.78
+    const earth_radius = 63.78 // 1/100 scale
     const earth = new THREE.Mesh(
         new THREE.SphereGeometry( earth_radius, 50, 50),
         material
@@ -78,7 +77,10 @@ const Scene = () => {
     */
     
     //ISS
-    var iss;
+    const tmpGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    const tmpMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+    var iss = new THREE.Mesh( tmpGeometry, tmpMaterial );
+
     // Instantiate a loader
     const loaderISS = new GLTFLoader();
     // Load a glTF resource
@@ -86,11 +88,10 @@ const Scene = () => {
 	    // resource URL
 	    'models/ISS_stationary.glb',
 	    // called when the resource is loaded
-	    function ( glb) {
-        iss = glb.scene
-        iss.scale.set(0.1,0.1,0.1)
-        iss.position.set(0,0,0)
-        scene.add(iss);
+	    function (glb) {
+            scene.remove(iss) // remove old placeholder
+            iss = glb.scene
+            iss.scale.set(0.01,0.01,0.01) // 1/100 scale
 	    },
 	    // called while loading is progressing
 	    function ( xhr ) {
@@ -133,7 +134,8 @@ const Scene = () => {
         latLon.lng += 80; // 80° offset
         if (latLon.lng > 180) latLon.lng -= 360
 
-        var R = earth_radius + 3.3;
+        // https://www.space.com/16748-international-space-station.html (average altitude of 400km)
+        var R = earth_radius + 4;
         const pi = Math.PI
         var lat = latLon.lat * (pi/180)
         var lon = latLon.lng * (pi/180)
@@ -156,7 +158,7 @@ const Scene = () => {
 
     const animate = () => {
         requestAnimationFrame(animate)
-        //controls.target = new THREE.Vector3(iss.position.x,iss.position.y,iss.position.z)
+        controls.target = iss.position
         controls.update()
         updatePos()
         renderer.render(scene, camera)
