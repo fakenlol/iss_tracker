@@ -89,9 +89,9 @@ const Scene = () => {
             var lat = latLon.lat * (pi/180)
             var lon = latLon.lng * (pi/180)
             
-            iss.position.x = R * Math.cos(lat) * Math.cos(lon)
+            iss.position.x = R * Math.cos(lat) * Math.sin(lon)
             iss.position.y = R * Math.sin(lat)
-            iss.position.z = R * Math.cos(lat) * Math.sin(lon)
+            iss.position.z = R * Math.cos(lat) * Math.cos(lon)
             scene.add( iss );
         })
     }
