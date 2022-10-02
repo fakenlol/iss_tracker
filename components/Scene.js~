@@ -1,20 +1,16 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import LockCamera from './LockCamera.jsx';
+import ViewMode from "./ViewStyle/ViewMode.jsx"
 
 const Scene = ({ tle }) => {
   const mountRef = useRef(null)
-  
-  const lock = true;
-    function changeCamera(){
-      lock = !lock;
-    } 
+
   useEffect(() => {
     const currentMount = mountRef.current
-    
+
     //Scena
     const scene = new THREE.Scene()
     
@@ -135,6 +131,8 @@ const Scene = ({ tle }) => {
         z = R * Math.sin(lat) * Math.sin(lon)
         
         iss.position.set(x, y, z)
+        if (cameraLock)
+            camera.position.set(x*2, y*2, z*2)
         scene.add( iss );
     }
 
@@ -148,9 +146,6 @@ const Scene = ({ tle }) => {
     scene.add(AO)
 
     const animate = () => {
-        if(lock){
-          camera.position.set(x*2, y*2, z*2)
-        }
         requestAnimationFrame(animate)
         updatePos()
         controls.target = iss.position
@@ -166,7 +161,7 @@ const Scene = ({ tle }) => {
 
   return (
     <>
-        <LockCamera changeCamera={changeCamera}/>
+        <ViewMode/>
         <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100vh" }}>
         </div>
     </>
