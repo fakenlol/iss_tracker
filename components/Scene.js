@@ -24,7 +24,7 @@ const Scene = ({ tle }) => {
       5,
       currentMount.clientWidth / currentMount.clientHeight,
       0.1,
-      1000
+      3000
     )
     scene.add(camera)
     
@@ -59,7 +59,7 @@ const Scene = ({ tle }) => {
     //Clouds
     const cloudsTexture = textureLoader.load('imgs/8k_earth_clouds.jpg')
     
-    const cloudsGeometry = new THREE.SphereGeometry(63.81, 50, 50)
+    const cloudsGeometry = new THREE.SphereGeometry(64.5, 50, 50)
     const cloudsMaterial = new THREE.MeshPhongMaterial({
         map: cloudsTexture,
         transparent: true,
@@ -68,19 +68,17 @@ const Scene = ({ tle }) => {
     const clouds = new THREE.Mesh(cloudsGeometry, cloudsMaterial)
     scene.add(clouds)
     
-    /*
-    // alineador_malvinas
-    const geometriax = new THREE.BoxGeometry(0.1,0.1,0.1);
-    const material2x = new THREE.MeshPhongMaterial({color: 0xffff00});
-    const alineadorx = new THREE.Mesh(geometriax, material2x);
-
-      var auxlat = (90- (-51.69245)) * (Math.PI / 180), auxlong = (-58.65645+180) * (Math.PI / 180);
-    alineadorx.position.x = -((earth_radius) * Math.sin(auxlat) * Math.cos(auxlong));
-    alineadorx.position.y = (earth_radius) * Math.cos(auxlat)
-    alineadorx.position.z = (earth_radius) * Math.sin(auxlat) * Math.sin(auxlong)
-
-    scene.add(alineadorx);
-    */
+    //Stars
+    const starsGeometry = new THREE.SphereGeometry(400, 32, 32);
+    const starsTexture = textureLoader.load('imgs/8k_stars_milky_way.jpg');
+    const starsMaterial = new THREE.MeshBasicMaterial({
+      map: starsTexture,
+      side: THREE.BackSide
+    });
+    
+    const stars = new THREE.Mesh(starsGeometry, starsMaterial);
+    
+    scene.add(stars)
     
     //ISS
     const tmpGeometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -112,7 +110,6 @@ const Scene = ({ tle }) => {
 
 	    }
     );
-    
     /*
     var tle = `ISS (ZARYA)
     1 25544U 98067A   17206.18396726  .00001961  00000-0  36771-4 0  9993
@@ -156,6 +153,7 @@ const Scene = ({ tle }) => {
         updatePos()
         controls.target = iss.position
         controls.update()
+        clouds.rotation.y -= 0.00005
         renderer.render(scene, camera)
     }
     animate()
