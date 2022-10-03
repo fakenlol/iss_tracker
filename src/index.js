@@ -6,11 +6,13 @@ import reportWebVitals from './reportWebVitals';
 import $ from 'jquery';
 import Popper from 'popper.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Script from "next/script";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
+    <Script src="//cdn.rawgit.com/mrdoob/three.js/master/build/three.min.js"/>
   </React.StrictMode>
 );
 
