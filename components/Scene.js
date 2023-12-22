@@ -3,16 +3,17 @@ import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import LockCamera from './LockCamera.jsx';
-import Header from './Header.jsx';
+import { FiVideo, FiVideoOff } from "react-icons/fi"
 
 const Scene = ({ tle }) => {
   const mountRef = useRef(null)
-  
-  const lock = true;
-    function changeCamera(){
-      lock = !lock;
-    } 
+  const [toggle, SetToggle] = useState(true)
+  var lock = true
+
+  function changeCamera(){
+    lock = !lock
+  }
+
   useEffect(() => {
     const currentMount = mountRef.current
     
@@ -39,10 +40,10 @@ const Scene = ({ tle }) => {
     const textureLoader = new THREE.TextureLoader()
     textureLoader.crossOrigin = ""
     
-    const texture = textureLoader.load('imgs/8k_earth_daymap.jpg')
+    const texture = textureLoader.load('imgs/8k-earth-daymap.webp')
     const specular = textureLoader.load('imgs/8k_earth_specular_map.tif')
     const normalMap = textureLoader.load('imgs/8k_earth_normal_map.tif')
-    console.log(normalMap);
+    
     const material = new THREE.MeshPhongMaterial({
         map: texture,
         normalMap: normalMap,
@@ -57,7 +58,7 @@ const Scene = ({ tle }) => {
     scene.add( earth );
     
     //Clouds
-    const cloudsTexture = textureLoader.load('imgs/8k_earth_clouds.jpg')
+    const cloudsTexture = textureLoader.load('imgs/8k-earth-clouds.webp')
     
     const cloudsGeometry = new THREE.SphereGeometry(64.5, 50, 50)
     const cloudsMaterial = new THREE.MeshPhongMaterial({
@@ -116,8 +117,8 @@ const Scene = ({ tle }) => {
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
     */
     var x, y , z
-    var cameraLock = true
     function updatePos(){
+      if (tle !== undefined) {
         var latLon = TLE.getLatLngObj(tle.trim());
 
         // https://www.space.com/16748-international-space-station.html (average altitude of 400km)
@@ -133,7 +134,8 @@ const Scene = ({ tle }) => {
         z = R * Math.sin(lat) * Math.sin(lon)
         
         iss.position.set(x, y, z)
-        scene.add( iss );
+        scene.add( iss ); 
+      }
     }
 
     //Controles
@@ -145,7 +147,7 @@ const Scene = ({ tle }) => {
     const AO = new THREE.AmbientLight(0xffffff,1)
     scene.add(AO)
 
-    const animate = () => {
+    function animate() {
         if(lock){
           camera.position.set(x*2, y*2, z*2)
         }
@@ -164,12 +166,16 @@ const Scene = ({ tle }) => {
   }, []);
 
   return (
-    < >
-        <Header>
-          <LockCamera changeCamera={changeCamera} />
-        </Header>
-        <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100vh" }}>
+    <>
+      <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100%" }}>
+      </div>
+      <div className="overScreen">
+      <div className="buttonsBar">
+        <div type="button" onClick={() => {changeCamera()}} className="buttonBlue">
+          {toggle ? <FiVideo/> : <FiVideoOff/>}
         </div>
+      </div>
+      </div>
     </>
   );
 };

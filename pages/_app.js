@@ -1,6 +1,8 @@
 import React from 'react'
 import Head from 'next/head'
 import '../styles/App.css'
+import '../components/styles/frame.css'
+import '../components/styles/header.css'
 
 function MyApp({ Component, pageProps }) {
   return (
