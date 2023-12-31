@@ -3,15 +3,31 @@ import * as THREE from "three";
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import * as TLE from "tle.js";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { FiVideo, FiVideoOff } from "react-icons/fi"
+import { FiCrosshair, FiMapPin } from "react-icons/fi"
 
 const Scene = ({ tle }) => {
   const mountRef = useRef(null)
-  const [toggle, SetToggle] = useState(true)
-  var lock = true
+  const lock = useRef(true)
+  const myPos = useRef(null)
+  const pivot = useRef(1)
+  const [toggle, SetToggle] = useState(false)
 
   function changeCamera(){
-    lock = !lock
+    lock.current = !lock.current
+    SetToggle(!toggle)
+  }
+
+  function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(savePosition);
+      console.log();
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+  }
+
+  function savePosition(position) {
+    myPos.current = position.coords
   }
 
   useEffect(() => {
@@ -86,6 +102,10 @@ const Scene = ({ tle }) => {
     const tmpMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000} );
     var iss = new THREE.Mesh( tmpGeometry, tmpMaterial );
 
+    //ISS Path
+    const materialLine = new THREE.LineBasicMaterial( { color: 0xffffff } );
+    var points = [];
+
     // Instantiate a loader
     const loaderISS = new GLTFLoader();
     // Load a glTF resource
@@ -117,6 +137,7 @@ const Scene = ({ tle }) => {
     2 25544  51.6400 208.9163 0006317  69.9862  25.2906 15.54225995 67660`;
     */
     var x, y , z
+    var contador = 0
     function updatePos(){
       if (tle !== undefined) {
         var latLon = TLE.getLatLngObj(tle.trim());
@@ -134,7 +155,17 @@ const Scene = ({ tle }) => {
         z = R * Math.sin(lat) * Math.sin(lon)
         
         iss.position.set(x, y, z)
-        scene.add( iss ); 
+        scene.add( iss );
+        
+        if (contador === 100) {
+          points.push( new THREE.Vector3( x, y, z ) );
+          const geometry = new THREE.BufferGeometry().setFromPoints( points );
+          const line = new THREE.Line( geometry, materialLine );
+          scene.add( line )
+          contador = 0
+          console.log('f');
+        }
+        contador++
       }
     }
 
@@ -147,18 +178,43 @@ const Scene = ({ tle }) => {
     const AO = new THREE.AmbientLight(0xffffff,1)
     scene.add(AO)
 
+    const myLocationGeometry = new THREE.SphereGeometry( 0.5, 32, 16 ); 
+    const myLocationMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
+    const myLocationPoint = new THREE.Mesh( myLocationGeometry, myLocationMaterial );
+
     function animate() {
-        if(lock){
-          camera.position.set(x*2, y*2, z*2)
+        
+        if (myPos.current !== undefined && myPos.current !== null) {
+
+          var R = 63.78 // 1/100 scale
+          const pi = Math.PI
+          var lat = (90-myPos.current.latitude) * (pi/180)
+          var lon = (myPos.current.longitude+180) * (pi/180)
+          
+          x = -(R * Math.sin(lat) * Math.cos(lon))
+          y = R * Math.cos(lat)
+          z = R * Math.sin(lat) * Math.sin(lon)
+          
+          myLocationPoint.position.set(x, y, z)
+          scene.add(myLocationPoint)
         }
         requestAnimationFrame(animate)
         updatePos()
-        controls.target = iss.position
+        
+        switch (pivot.current) {
+          case 0:
+            controls.target = myLocationPoint.position
+            break;
+          case 1:
+            controls.target = iss.position
+            break;
+        }
         controls.update()
         clouds.rotation.y -= 0.00005
         renderer.render(scene, camera)
     }
     animate()
+
     //Clean up scene
     return () =>{
         currentMount.removeChild(renderer.domElement)
@@ -170,11 +226,14 @@ const Scene = ({ tle }) => {
       <div className="Contenedor3D" ref={mountRef} style={{ width: "100%", height: "100%" }}>
       </div>
       <div className="overScreen">
-      <div className="buttonsBar">
-        <div type="button" onClick={() => {changeCamera()}} className="buttonBlue">
-          {toggle ? <FiVideo/> : <FiVideoOff/>}
+        <div className="buttonsBar">
+          <div type="button" onClick={() => {pivot.current = 0; getLocation()}} className="buttonBlue">
+            <FiMapPin />
+          </div>
+          <div type="button" onClick={() => {pivot.current = 1; changeCamera()}} className="buttonBlue">
+            <FiCrosshair />
+          </div>
         </div>
-      </div>
       </div>
     </>
   );
